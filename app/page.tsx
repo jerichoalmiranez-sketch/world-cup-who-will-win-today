@@ -20,15 +20,17 @@ export default function Home() {
   ];
 
   return (
-    <main style={{ padding: 20 }}>
-      <h1>World Cup Matches</h1>
+    <main style={{ padding: 20, textAlign: "center" }}>
+      <h1 style={{ fontSize: "28px", marginBottom: "10px" }}>
+        WORLD CUP 2026: Who will win today?
+      </h1>
 
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: "20px",
-          marginTop: "20px",
+          marginTop: "30px",
         }}
       >
         {dates.map((item) => (
@@ -36,7 +38,6 @@ export default function Home() {
             <div
               style={{
                 padding: "20px",
-                textAlign: "center",
                 border: "1px solid #ccc",
                 borderRadius: "10px",
                 cursor: "pointer",
