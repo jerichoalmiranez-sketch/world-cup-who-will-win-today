@@ -1,7 +1,7 @@
 export default function Page({ params }: { params: { date: string } }) {
   return (
-    <main>
-      <h1>World Cup Match</h1>
+    <main style={{ padding: 20 }}>
+      <h1>Matches</h1>
       <p>Date: {params.date}</p>
     </main>
   );
