@@ -6,15 +6,17 @@ const BASE_URL = "https://v3.football.api-sports.io";
 
 export async function GET() {
   try {
-    const response = await axios.get(`${BASE_URL}/fixtures`, {
-      params: {
-        league: 1,
-        season: 2026,
-      },
-      headers: {
-        "x-apisports-key": process.env.FOOTBALL_API_KEY!,
-      },
-    });
+const res = await fetch(
+  "https://v3.football.api-sports.io/fixtures?league=1&season=2026",
+  {
+    headers: {
+      "x-apisports-key": process.env.FOOTBALL_API_KEY!,
+    },
+  }
+);
+
+const data = await res.json();
+const fixtures = data.response;
 
     const fixtures = response.data.response;
 
