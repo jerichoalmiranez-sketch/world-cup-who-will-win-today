@@ -2,23 +2,19 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 
-const BASE_URL = "https://v3.football.api-sports.io";
-
 export async function GET() {
   try {
-const res = await fetch(
-  "https://v3.football.api-sports.io/fixtures?league=1&season=2026",
-  {
-    headers: {
-      "x-apisports-key": process.env.FOOTBALL_API_KEY!,
-    },
-  }
-);
+    const res = await fetch(
+      "https://v3.football.api-sports.io/fixtures?league=1&season=2026",
+      {
+        headers: {
+          "x-apisports-key": process.env.FOOTBALL_API_KEY!,
+        },
+      }
+    );
 
-const data = await res.json();
-const fixtures = data.response;
-
-    const fixtures = response.data.response;
+    const data = await res.json();
+    const fixtures = data.response;
 
     for (const fixture of fixtures) {
       await addDoc(collection(db, "matches"), {
