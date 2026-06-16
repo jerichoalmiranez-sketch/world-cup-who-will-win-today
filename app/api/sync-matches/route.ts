@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../../lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 export async function GET() {
   try {
@@ -13,18 +13,33 @@ export async function GET() {
       }
     );
 
+    if (!res.ok) {
+      throw new Error(`API request failed: ${res.status}`);
+    }
+
     const data = await res.json();
     const fixtures = data.response;
 
+    if (!fixtures || fixtures.length === 0) {
+      return NextResponse.json({
+        success: false,
+        message: "No fixtures returned",
+      });
+    }
+
     for (const fixture of fixtures) {
-      await addDoc(collection(db, "matches"), {
-        apiId: fixture.fixture.id,
+      const id = fixture.fixture.id;
+
+      await setDoc(doc(db, "matches", String(id)), {
+        apiId: id,
         homeTeam: fixture.teams.home.name,
         awayTeam: fixture.teams.away.name,
         date: fixture.fixture.date,
         round: fixture.league.round,
-        venue: fixture.fixture.venue.name,
+        venue: fixture.fixture.venue?.name || null,
+        city: fixture.fixture.venue?.city || null,
         status: fixture.fixture.status.short,
+        updatedAt: new Date().toISOString(),
       });
     }
 
@@ -34,7 +49,10 @@ export async function GET() {
     });
   } catch (error: any) {
     return NextResponse.json(
-      { error: error.message },
+      {
+        success: false,
+        error: error.message || "Unknown error",
+      },
       { status: 500 }
     );
   }
