@@ -1,33 +1,53 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../lib/firebase";
+import { useEffect, useState } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-export default async function Page({
-  params,
-}: {
-  params: { date: string };
-}) {
-  const snap = await getDocs(collection(db, "matches"));
+export default function Page({ params }: { params: { date: string } }) {
+  const [matches, setMatches] = useState<any[]>([]);
 
-  const matches = snap.docs
-    .map((doc) => ({ id: doc.id, ...doc.data() }))
-    .filter((m: any) => m.date?.split("T")[0] === params.date);
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "matches"), (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const filtered = data.filter(
+        (m: any) => m.date?.split("T")[0] === params.date
+      );
+
+      setMatches(filtered);
+    });
+
+    return () => unsub();
+  }, [params.date]);
 
   return (
     <main style={{ padding: 20 }}>
-      <h1>Matches for {params.date}</h1>
+      <h1>Live Matches - {params.date}</h1>
 
       {matches.length === 0 ? (
-        <p>No matches found</p>
+        <p>No matches</p>
       ) : (
-        matches.map((m: any) => (
-          <div key={m.id} style={{ marginBottom: 10 }}>
+        matches.map((m) => (
+          <div
+            key={m.id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 10,
+              marginBottom: 10,
+              borderRadius: 8,
+            }}
+          >
             <h3>
-              {m.homeTeam} vs {m.awayTeam}
+              {m.homeTeam} {m.homeScore ?? 0} - {m.awayScore ?? 0}{" "}
+              {m.awayTeam}
             </h3>
-            <p>{new Date(m.date).toLocaleString()}</p>
+
             <p>Status: {m.status}</p>
+            <p>{m.venue}</p>
           </div>
         ))
       )}
