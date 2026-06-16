@@ -13,9 +13,12 @@ export async function GET() {
 
     const data = await res.json();
 
+    const fixtures = data.response || [];
+
     return NextResponse.json({
       success: true,
-      count: data.response?.length || 0,
+      total: fixtures.length,
+      updatedAt: new Date().toISOString(),
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -23,18 +26,7 @@ export async function GET() {
       { status: 500 }
     );
   }
-}        updatedAt: new Date().toISOString(),
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      total: fixtures.length,
-    });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
+}      { status: 500 }
     );
   }
 }        updatedAt: new Date().toISOString(),
