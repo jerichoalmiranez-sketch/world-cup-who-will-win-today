@@ -13,19 +13,8 @@ export async function GET() {
       }
     );
 
-    if (!res.ok) {
-      throw new Error(`API request failed: ${res.status}`);
-    }
-
     const data = await res.json();
     const fixtures = data.response;
-
-    if (!fixtures || fixtures.length === 0) {
-      return NextResponse.json({
-        success: false,
-        message: "No fixtures returned",
-      });
-    }
 
     for (const fixture of fixtures) {
       const id = fixture.fixture.id;
@@ -35,10 +24,16 @@ export async function GET() {
         homeTeam: fixture.teams.home.name,
         awayTeam: fixture.teams.away.name,
         date: fixture.fixture.date,
+
+        // 🔥 LIVE DATA
+        status: fixture.fixture.status.short,
+        homeScore: fixture.goals.home,
+        awayScore: fixture.goals.away,
+
         round: fixture.league.round,
         venue: fixture.fixture.venue?.name || null,
         city: fixture.fixture.venue?.city || null,
-        status: fixture.fixture.status.short,
+
         updatedAt: new Date().toISOString(),
       });
     }
@@ -49,10 +44,7 @@ export async function GET() {
     });
   } catch (error: any) {
     return NextResponse.json(
-      {
-        success: false,
-        error: error.message || "Unknown error",
-      },
+      { success: false, error: error.message },
       { status: 500 }
     );
   }
