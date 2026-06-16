@@ -23,7 +23,7 @@ export async function GET() {
         apiId: id,
         homeTeam: fixture.teams.home.name,
         awayTeam: fixture.teams.away.name,
-        date: fixture.fixture.date,
+        date: new Date(fixture.fixture.date).toISOString(),
 
         // 🔥 LIVE DATA
         status: fixture.fixture.status.short,
