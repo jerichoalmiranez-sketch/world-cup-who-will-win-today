@@ -6,40 +6,29 @@ export async function GET() {
       "https://v3.football.api-sports.io/fixtures?league=1&season=2026",
       {
         headers: {
-          "x-apisports-key": process.env.FOOTBALL_API_KEY!,
+          "x-rapidapi-key": process.env.FOOTBALL_API_KEY ?? "",
+          "x-rapidapi-host": "v3.football.api-sports.io",
         },
       }
     );
 
-    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(`API request failed: ${res.status}`);
+    }
 
-    const fixtures = data.response || [];
+    const data = await res.json();
 
     return NextResponse.json({
       success: true,
-      total: fixtures.length,
+      count: data?.response?.length ?? 0,
       updatedAt: new Date().toISOString(),
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
-  }
-}      { status: 500 }
-    );
-  }
-}        updatedAt: new Date().toISOString(),
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      total: fixtures.length,
-    });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
+      {
+        success: false,
+        error: error?.message ?? "Unknown error",
+      },
       { status: 500 }
     );
   }
