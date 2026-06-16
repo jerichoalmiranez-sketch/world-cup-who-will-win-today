@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "../../../lib/firebase";
 
 export default function Page({ params }: { params: { date: string } }) {
   const [matches, setMatches] = useState<any[]>([]);
