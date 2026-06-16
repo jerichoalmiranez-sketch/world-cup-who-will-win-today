@@ -1,47 +1,43 @@
 import { NextResponse } from "next/server";
+import axios from "axios";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, deleteDoc, doc, addDoc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
+
+const BASE_URL = "https://v3.football.api-sports.io";
 
 export async function GET() {
   try {
-    // 1. Fetch World Cup fixtures
-    const res = await fetch(
-      "https://v3.football.api-sports.io/fixtures?league=1&season=2026",
-      {
-        headers: {
-          "x-apisports-key": process.env.FOOTBALL_API_KEY!,
-        },
-      }
-    );
+    const response = await axios.get(`${BASE_URL}/fixtures`, {
+      params: {
+        league: 1,
+        season: 2026,
+      },
+      headers: {
+        "x-apisports-key": process.env.FOOTBALL_API_KEY!,
+      },
+    });
 
-    const data = await res.json();
-    const matches = data.response;
+    const fixtures = response.data.response;
 
-    // 2. Clear old matches (optional but clean)
-    const old = await getDocs(collection(db, "matches"));
-
-    for (const d of old.docs) {
-      await deleteDoc(doc(db, "matches", d.id));
-    }
-
-    // 3. Save new matches to Firebase
-    for (const match of matches) {
+    for (const fixture of fixtures) {
       await addDoc(collection(db, "matches"), {
-        apiId: match.fixture.id,
-        homeTeam: match.teams.home.name,
-        awayTeam: match.teams.away.name,
-        date: match.fixture.date,
-        status: match.fixture.status.short,
+        apiId: fixture.fixture.id,
+        homeTeam: fixture.teams.home.name,
+        awayTeam: fixture.teams.away.name,
+        date: fixture.fixture.date,
+        round: fixture.league.round,
+        venue: fixture.fixture.venue.name,
+        status: fixture.fixture.status.short,
       });
     }
 
     return NextResponse.json({
       success: true,
-      count: matches.length,
+      total: fixtures.length,
     });
-  } catch (err) {
+  } catch (error: any) {
     return NextResponse.json(
-      { error: "Sync failed", details: err },
+      { error: error.message },
       { status: 500 }
     );
   }
