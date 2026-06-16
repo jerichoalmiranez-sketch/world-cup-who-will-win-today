@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 
