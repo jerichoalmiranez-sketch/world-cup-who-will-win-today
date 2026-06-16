@@ -23,18 +23,32 @@ export async function GET() {
         apiId: id,
         homeTeam: fixture.teams.home.name,
         awayTeam: fixture.teams.away.name,
+
+        // ✅ FIXED DATE FORMAT
         date: new Date(fixture.fixture.date).toISOString(),
 
-        // 🔥 LIVE DATA
         status: fixture.fixture.status.short,
         homeScore: fixture.goals.home,
         awayScore: fixture.goals.away,
 
         round: fixture.league.round,
         venue: fixture.fixture.venue?.name || null,
-        city: fixture.fixture.venue?.city || null,
 
         updatedAt: new Date().toISOString(),
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      total: fixtures.length,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}        updatedAt: new Date().toISOString(),
       });
     }
 
