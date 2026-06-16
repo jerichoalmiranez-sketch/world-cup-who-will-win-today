@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
 
 export async function GET() {
   try {
@@ -14,27 +12,18 @@ export async function GET() {
     );
 
     const data = await res.json();
-    const fixtures = data.response;
 
-    for (const fixture of fixtures) {
-      const id = fixture.fixture.id;
-
-      await setDoc(doc(db, "matches", String(id)), {
-        apiId: id,
-        homeTeam: fixture.teams.home.name,
-        awayTeam: fixture.teams.away.name,
-
-        // ✅ FIXED DATE FORMAT
-        date: new Date(fixture.fixture.date).toISOString(),
-
-        status: fixture.fixture.status.short,
-        homeScore: fixture.goals.home,
-        awayScore: fixture.goals.away,
-
-        round: fixture.league.round,
-        venue: fixture.fixture.venue?.name || null,
-
-        updatedAt: new Date().toISOString(),
+    return NextResponse.json({
+      success: true,
+      count: data.response?.length || 0,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}        updatedAt: new Date().toISOString(),
       });
     }
 
