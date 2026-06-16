@@ -1,53 +1,39 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 
-export default function Page({ params }: { params: { date: string } }) {
-  const [matches, setMatches] = useState<any[]>([]);
+function formatDate(date: string) {
+  return new Date(date).toISOString().split("T")[0];
+}
 
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "matches"), (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+export default async function Page({
+  params,
+}: {
+  params: { date: string };
+}) {
+  const snap = await getDocs(collection(db, "matches"));
 
-      const filtered = data.filter(
-        (m: any) => m.date?.split("T")[0] === params.date
-      );
+  const data = snap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 
-      setMatches(filtered);
-    });
-
-    return () => unsub();
-  }, [params.date]);
+  const matches = data.filter(
+    (m: any) => formatDate(m.date) === params.date
+  );
 
   return (
     <main style={{ padding: 20 }}>
-      <h1>Live Matches - {params.date}</h1>
+      <h1>Matches for {params.date}</h1>
 
       {matches.length === 0 ? (
-        <p>No matches</p>
+        <p>No matches found</p>
       ) : (
-        matches.map((m) => (
-          <div
-            key={m.id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 10,
-              marginBottom: 10,
-              borderRadius: 8,
-            }}
-          >
+        matches.map((m: any) => (
+          <div key={m.id}>
             <h3>
-              {m.homeTeam} {m.homeScore ?? 0} - {m.awayScore ?? 0}{" "}
-              {m.awayTeam}
+              {m.homeTeam} {m.homeScore ?? 0} - {m.awayScore ?? 0} {m.awayTeam}
             </h3>
-
-            <p>Status: {m.status}</p>
-            <p>{m.venue}</p>
+            <p>{m.status}</p>
           </div>
         ))
       )}
